@@ -8,7 +8,8 @@ import java.util.*;
 
 import javax.persistence.*;
 
-import fr.epsi.tpjpa.model.Animal;
+import fr.epsi.segabank.model.Compte;
+import fr.epsi.segabank.model.Client;
 /**
  * @author nicolas
  *
@@ -24,24 +25,31 @@ public class Agence implements Serializable {
 	private int id;
 	private int codeAgence;
 	private String label;
-	@OneToMany(mappedBy="compte")
+	@OneToMany(mappedBy="agence")
 	private List<Compte> comptes;
-
+	@OneToMany(mappedBy="agence")
+	private List<Client> clients;
+	@ManyToOne
+	@JoinColumn(name="adresse_id")
+	private Adresse adresse;
+	
 	/**
 	 * 
 	 */
-	public int getId() {
-		return id;
-	}
-	
-	public void setId(int id) {
-		this.id = id;
-	}
 	
 	public Agence() {
 		// TODO Auto-generated constructor stub
 	}
 	
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	public int getCodeAgence() {
 		return codeAgence;
 	}
@@ -66,4 +74,21 @@ public class Agence implements Serializable {
 		this.comptes = comptes;
 	}
 
+	public List<Client> getClients() {
+		return clients;
+	}
+
+	public void setClients(List<Client> clients) {
+		this.clients = clients;
+	}
+
+	public Adresse getAdresse() {
+		return adresse;
+	}
+
+	public void setAdresse(Adresse adresse) {
+		this.adresse = adresse;
+	}
+	
+	
 }
