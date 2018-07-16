@@ -11,6 +11,6 @@
 			<attribute name="owner.project.facets" value="jpt.jpa"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/EPSI/Outils/mysql-connector-java-5.1.44.jar"/>
+	<classpathentry kind="lib" path="C:/wamp64/www/SegaBank/mysql-connector-java-5.1.44.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
