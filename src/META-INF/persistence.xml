@@ -4,11 +4,16 @@
    <persistence-unit name="SegaBank" transaction-type="RESOURCE_LOCAL">
 
        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-         <class>fr.epsi.segabank.model.Compte </class>
-         <class>fr.epsi.segabank.model.ComptePayant </class>
-         <class>fr.epsi.segabank.model.CompteSimple </class> 
-         <class>fr.epsi.segabank.model.CompteEpargne </class>
-         <class>fr.epsi.segabank.model.Transaction </class>    
+       <class>fr.epsi.segabank.model.Compte </class>
+       <class>fr.epsi.segabank.model.ComptePayant </class>
+       <class>fr.epsi.segabank.model.CompteSimple </class> 
+       <class>fr.epsi.segabank.model.CompteEpargne </class>
+       <class>fr.epsi.segabank.model.Transaction </class>    
+       <class>fr.epsi.segabank.model.Agence</class>
+       <class>fr.epsi.segabank.model.Client</class>
+       <class>fr.epsi.segabank.model.Adresse</class>
+       <class>fr.epsi.segabank.model.Ville</class>
+       <class>fr.epsi.segabank.model.CodePostal</class>
        <properties>
            <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/>
            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/segabank?useSSL=false"/>
