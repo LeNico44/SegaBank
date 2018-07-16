@@ -12,6 +12,8 @@ import javax.persistence.*;
 //Toujours choisir "persistence"
 @Entity
 @Table(name = "compte")
+@Inheritance(strategy=InheritanceType.JOINED)
+@DiscriminatorColumn(name="type")
 public class Compte {
 
 	//Mapping ID
@@ -29,6 +31,12 @@ public class Compte {
 	@ManyToOne
 	@JoinColumn(name= "client_id")
 	private Client client;
+	
+	@ManyToOne
+	@JoinColumn(name="agence_id")
+	private Agence agence;
+	
+	private String type;
 	
 	public Compte() {
 		
@@ -72,6 +80,14 @@ public class Compte {
 
 	public void setClient(Client client) {
 		this.client = client;
+	}
+
+	public Agence getAgence() {
+		return agence;
+	}
+
+	public void setAgence(Agence agence) {
+		this.agence = agence;
 	}
 	
 
