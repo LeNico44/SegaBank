@@ -42,6 +42,14 @@ public class Client implements Serializable {
 	public Client() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public Client(String nom, String prenom, Agence agence, Adresse adresse) {
+		// TODO Auto-generated constructor stub
+		this.nom = nom;
+		this.prenom = prenom;
+		this.agence = agence;
+		this.adresse = adresse;
+	}
 
 	public int getId() {
 		return id;

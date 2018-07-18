@@ -89,6 +89,9 @@ public class Main {
             case 4:
                 dspAgences();
                 break;
+            case 5:
+                addClient();
+                break;
             case 9:
             	addCompte(); 
             	break;
@@ -103,7 +106,6 @@ public class Main {
     }
 	
 	//AGENCE
-
 	public static void addAgence() {
 		
 		System.out.println( "************************************************" );
@@ -224,6 +226,86 @@ public class Main {
   
         dspMainMenu();
 	}
+	
+	//CLIENT
+	
+	public static void addClient() {
+		Query query1 = em.createQuery("FROM Agence");
+		List<Agence> agences = query1.getResultList();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "****************Liste des agences**************" );
+        if ( agences.size() > 0 ) {
+            System.out.println( "Sélectionnez l'agence pour laquelle créer un client." );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           " );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Agence agence  : agences ) {
+            System.out.println( index++ + "        | " + agence.getId() + "            | " + agence.getLabel() );
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index de l'agence sélèctionnée (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= agences.size() );
+            if ( -1 != response ) {
+                Agence lAgence = agences.get( response );
+                addClientAgence(lAgence);
+            }
+        } else {
+            System.out.println( "Aucune agence n'a été trouvée !!!" );
+        }
+	}
+	
+	public static void addClientAgence(Agence agence) {
+		
+		System.out.println( "************************************************" );
+        System.out.println( "***************Ajout d'une client***************" );
+		
+		System.out.println("");
+		
+		System.out.println("Entrez le nom du client : ");
+		String nom = scanner.nextLine();
+		
+		System.out.println("Entrez le prenom du client : ");
+		String prenom = scanner.nextLine();
+		
+		System.out.println("Entrez le numero de la voie : ");
+		int numeroVoie = scanner2.nextInt();
+		
+		System.out.println("Entrez le type et le nom de la voie :");
+		String voie = scanner.nextLine();
+		
+		System.out.println("Entrez un code postal");
+		int codePostal = scanner2.nextInt();
+		
+		System.out.println("Entrez la ville de l'agence : ");
+		String ville = scanner.nextLine();
+
+		
+		
+		Adresse adresse = new Adresse(numeroVoie, voie, codePostal, ville);
+		
+		Client client = new Client(nom, prenom, agence, adresse);
+		
+		adresse.setClient(client);
+		
+		
+		
+
+		em.getTransaction().begin();
+		em.persist(adresse);
+		em.persist(client);
+		em.getTransaction().commit();
+		
+		
+		
+		System.out.println("");
+		System.out.println("**********************");
+		System.out.println("L'agence à été créée !");
+        dspMainMenu();
+    }
 	
 	//COMPTE
 	
@@ -437,6 +519,65 @@ public class Main {
        
    }
    public static void creditCompte() {
+	   
+	   Query query1 = em.createQuery("FROM Compte");
+		List<Compte> comptes = query1.getResultList();
+				
+  	 	System.out.println( "***********************************************" );
+        System.out.println( "************Selection d'un compte***********" );
+       if ( comptes.size() > 0 ) {
+           System.out.println( "Sélectionnez le compte à crediter..." );
+           System.out.println( "**************************************************************" );
+           System.out.println( "index    |id             | nom           " );
+           System.out.println( "**************************************************************" );
+           int index = 0;
+           
+           List<String> types = new ArrayList();
+           
+           for ( Compte compte  : comptes ) {
+           System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
+           types.add(compte.getType());
+           }
+           int response;
+           String rep;
+           do {
+               System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
+               response = scanner2.nextInt();
+           } while ( response < -1 || response >= comptes.size() );
+           if ( -1 != response ) {
+             if (types.get(response) == "simple") {
+            	 CompteSimple compteSimple = new CompteSimple();
+            	 compteSimple = (CompteSimple) comptes.get(response);
+            	 
+            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteSimple.getLabel() + ") ?(o/n)" );                     
+                 rep = scanner.nextLine();
+             }else if (types.get(response) == "payant") {
+            	 ComptePayant comptePayant = new ComptePayant();
+            	 comptePayant = (ComptePayant) comptes.get(response);
+            	 
+            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + comptePayant.getLabel() + ") ?(o/n)" );                     
+                 rep = scanner.nextLine();
+            	 
+             }else {
+            	 CompteEpargne compteEpargne = new CompteEpargne();
+            	 compteEpargne = (CompteEpargne) comptes.get(response);
+            	 
+            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
+            	 rep = scanner.nextLine();
+             }
+              
+               
+               
+               if (rep.equals("o")) {
+               System.out.println("delete "  );
+            
+
+               }
+           }
+       } else {
+           System.out.println( "Aucun élément trouvé !!!" );
+       }
+ 
        
    }
    

@@ -98,5 +98,9 @@ public class Agence implements Serializable {
 		this.adresse = adresse;
 	}
 	
+	public void ajoutCompte(Compte compte) {
+		this.comptes.add(compte);
+		compte.setAgence(this);
+	}
 	
 }
