@@ -22,12 +22,17 @@ public class CodePostal implements Serializable{
 	@Column(name="codepostal_id")
 	@GeneratedValue(strategy= GenerationType.AUTO)
 	private int id;
-	private String label;
+	private int code;
 	@OneToMany(mappedBy="codePostal")
 	private List<Ville> villes;
 	
 	public CodePostal() {
 		// TODO Auto-generated constructor stub
+	}
+	
+	public CodePostal(int codePostal) {
+		// TODO Auto-generated constructor stub
+		this.code = codePostal;
 	}
 
 	public int getId() {
@@ -38,12 +43,12 @@ public class CodePostal implements Serializable{
 		this.id = id;
 	}
 
-	public String getLabel() {
-		return label;
+	public int getCode() {
+		return code;
 	}
 
-	public void setLabel(String label) {
-		this.label = label;
+	public void setCode(int code) {
+		this.code = code;
 	}
 
 	public List<Ville> getVilles() {

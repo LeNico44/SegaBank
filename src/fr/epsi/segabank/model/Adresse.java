@@ -35,6 +35,17 @@ public class Adresse implements Serializable{
 	public Adresse() {
 		// TODO Auto-generated constructor stub
 	}
+	public Adresse(String label) {
+		// TODO Auto-generated constructor stub
+		this.label = label; 
+	}
+	
+	public Adresse(String label, Agence agence, Ville ville) {
+		// TODO Auto-generated constructor stub
+		this.label = label; 
+		this.agence = agence;
+		this.ville = ville;
+	}
 
 	public int getId() {
 		return id;

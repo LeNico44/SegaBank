@@ -31,6 +31,11 @@ public class Ville implements Serializable{
 	public Ville() {
 		// TODO Auto-generated constructor stub
 	}
+	
+	public Ville(String label) {
+		// TODO Auto-generated constructor stub
+		this.label = label;
+	}
 
 	public int getId() {
 		return id;

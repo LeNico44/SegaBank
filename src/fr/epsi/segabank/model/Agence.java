@@ -34,11 +34,19 @@ public class Agence implements Serializable {
 	private Adresse adresse;
 	
 	/**
+	 * @param codeAgence2 
+	 * @param nomDAgence 
 	 * 
 	 */
 	
 	public Agence() {
 		// TODO Auto-generated constructor stub
+	}
+	public Agence(String label, int codeAgence, Adresse adresse) {
+		// TODO Auto-generated constructor stub
+		this.label = label;
+		this.codeAgence = codeAgence;
+		this.adresse = adresse;
 	}
 	
 

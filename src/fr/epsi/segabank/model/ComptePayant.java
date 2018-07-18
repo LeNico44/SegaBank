@@ -9,28 +9,17 @@ import javax.persistence.*;
 //Declaration de la classe a JPA 
 //Toujours choisir "persistence"
 @Entity
-@Table(name = "comptePayant")
-
+@DiscriminatorValue("PAYANT")
 public class ComptePayant extends Compte {
 
-
-		
-	private double overdraft;
-	
+	private static int fivePerCent = 5;
 	
 	public ComptePayant() {
 		
 	}
 
-	public double getOverdraft() {
-		return overdraft;
+	public static int getFivePerCent() {
+		return fivePerCent;
 	}
-
-
-	public void setOverdraft(double overdraft) {
-		this.overdraft = overdraft;
-	}
-	
-	
-	
+		
 }
