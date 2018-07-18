@@ -16,8 +16,11 @@ import org.hibernate.query.criteria.internal.expression.function.AggregationFunc
 
 import fr.epsi.segabank.model.Adresse;
 import fr.epsi.segabank.model.Agence;
-import fr.epsi.segabank.model.CodePostal;
-import fr.epsi.segabank.model.Ville;
+import fr.epsi.segabank.model.Client;
+import fr.epsi.segabank.model.Compte;
+import fr.epsi.segabank.model.CompteEpargne;
+import fr.epsi.segabank.model.ComptePayant;
+import fr.epsi.segabank.model.CompteSimple;
 
 /**
  * @author nicolas
@@ -25,7 +28,6 @@ import fr.epsi.segabank.model.Ville;
  */
 public class Main {
 
-	private static List<Ville> villes;
 	private static Scanner scanner = new Scanner( System.in );
 	private static Scanner scanner2 = new Scanner( System.in );
 	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("SegaBank");
@@ -79,7 +81,7 @@ public class Main {
                 addAgence();
                 break;
             case 2:
-                //editAgence();
+                editAgence();
                 break;
             case 3:
                 deleteAgence();
@@ -87,60 +89,49 @@ public class Main {
             case 4:
                 dspAgences();
                 break;
+            case 9:
+            	addCompte(); 
+            	break;
+            case 10:
+            	addTransaction();
+            	break;
+            case 12:
+            	dspComptes();
+            	break;
 
         }
     }
+	
+	//AGENCE
 
 	public static void addAgence() {
-
-		Query query1 = em.createQuery("FROM CodePostal");
-		List<CodePostal> codes = query1.getResultList();
 		
 		System.out.println( "************************************************" );
         System.out.println( "***************Ajout d'une agence***************" );
 		
 		System.out.println("");
 		
-		//----------------------------------------------
 		System.out.println("Entrez un nom d'agence : ");
 		String nomDAgence = scanner.nextLine();
-		
-		System.out.println("Entrez la ville de l'agence : ");
-		String villeAgence = scanner.nextLine();
-		
-		System.out.println("Entrez un code postal");
-		int codePostalAgence = scanner2.nextInt();
-		
-		System.out.println("Entrez l'adresse de l'agence : ");
-		String adresseAgence = scanner.nextLine();
-		//-----------------------------------------------
 		
 		System.out.println("Entrez un code agence : ");
 		int codeAgence = scanner2.nextInt();
 		
-		Ville ville = new Ville(villeAgence);
+		System.out.println("Entrez le numero de la voie : ");
+		int numeroVoie = scanner2.nextInt();
 		
-		villes = new ArrayList<>();
-		villes.add(ville);
+		System.out.println("Entrez le type et le nom de la voie :");
+		String voie = scanner.nextLine();
 		
-		CodePostal codePostal = new CodePostal();
-		if ( codes.size() > 0 ) {
-			for(CodePostal code  : codes) {
-				if(codePostalAgence == code.getCode() ) {
-					ville.setCodePostal(code);
-				}else {
-					codePostal.setCode(codePostalAgence);
-					ville.setCodePostal(codePostal);
-				}
-			}
-		}else {
-			codePostal.setCode(codePostalAgence);
-			ville.setCodePostal(codePostal);
-		}
+		System.out.println("Entrez un code postal");
+		int codePostal = scanner2.nextInt();
 		
-		codePostal.setVilles(villes);
+		System.out.println("Entrez la ville de l'agence : ");
+		String ville = scanner.nextLine();
+
 		
-		Adresse adresse = new Adresse(adresseAgence, null, ville);
+		
+		Adresse adresse = new Adresse(numeroVoie, voie, codePostal, ville);
 		
 		Agence agence = new Agence(nomDAgence, codeAgence, adresse);
 		
@@ -148,20 +139,11 @@ public class Main {
 		
 		
 		
-		if(codePostal.getCode() != 0) {
-			em.getTransaction().begin();
-			em.persist(ville);
-			em.persist(adresse);
-			em.persist(codePostal);
-			em.persist(agence);
-			em.getTransaction().commit();
-		}else {
-			em.getTransaction().begin();
-			em.persist(ville);
-			em.persist(adresse);
-			em.persist(agence);
-			em.getTransaction().commit();
-		}
+
+		em.getTransaction().begin();
+		em.persist(adresse);
+		em.persist(agence);
+		em.getTransaction().commit();
 		
 		
 		
@@ -170,6 +152,11 @@ public class Main {
 		System.out.println("L'agence à été créée !");
         dspMainMenu();
     }
+	
+	public static void editAgence() {
+		System.out.println("Bientôt vous pourrez modifier une agence...");
+		dspMainMenu();
+	}
 	
 	public static void deleteAgence() {
 		Query query1 = em.createQuery("FROM Agence");
@@ -199,16 +186,13 @@ public class Main {
                 System.out.println( "Etes vous sûr de vouloir supprimer  (" + lAgence.getLabel() + ") ?(o/n)" );                     
                 String rep = scanner.nextLine();
                 
+                
                 if (rep.equals("o")) {
-                String label = lAgence.getLabel();
-                
-                
-                    if ( !label.equals( "" ) && !label.equals( lAgence.getId() ) ) {
-                        lAgence.setLabel( label );
+                System.out.println("delete " + lAgence.getLabel());
                         em.getTransaction().begin();
-                		em.remove(lAgence);
+                		em.remove(agences.get( response ));
                 		em.getTransaction().commit();
-                    }
+
                 }
             }
         } else {
@@ -221,8 +205,6 @@ public class Main {
 	public static void dspAgences() {
 		Query query1 = em.createQuery("FROM Agence");
 		List<Agence> agences = query1.getResultList();
-		
-		Agence lAgence = new Agence();
 	       
    	 	System.out.println( "***********************************************" );
         System.out.println( "****************Liste des agences**************" );
@@ -242,4 +224,223 @@ public class Main {
   
         dspMainMenu();
 	}
+	
+	//COMPTE
+	
+	public static void addCompte() {
+		System.out.println( "************************************************" );
+        System.out.println( "***************Ajout d'un compte****************" );
+		
+		System.out.println("");
+		int response;
+        do {
+        	System.out.println( "* 1 - Compte depuis une agence     *" );
+        	System.out.println( "* 2 - Compte depuis un client      *" );
+        	System.out.print  ( "        * Entrez votre choix : "      );
+        	response = scanner.nextInt();
+	   
+         } while ( 0 >= response || response > 3 );    
+	         scanner.nextLine();  
+	         switch ( response ) {        
+	         case 1:
+	        	 choixAgence();
+	        	 break;        
+	         case 2:
+	        	 //choixClient();
+	             break;        
+	    }
+	}
+	
+	public static void choixAgence() {
+		Query query1 = em.createQuery("FROM Agence");
+		List<Agence> agences = query1.getResultList();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "****************Liste des agences**************" );
+        if ( agences.size() > 0 ) {
+            System.out.println( "Sélectionnez l'agence pour laquelle créer un compte" );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           " );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Agence agence  : agences ) {
+            System.out.println( index++ + "        | " + agence.getId() + "            | " + agence.getLabel() );
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= agences.size() );
+            if ( -1 != response ) {
+                Agence lAgence = agences.get( response );
+                Client clientNull = null;
+                addCompteAgence(lAgence, clientNull);
+            }
+        } else {
+            System.out.println( "Aucune agence n'a été trouvée !!!" );
+        }
+	}
+	
+	public static void addCompteAgence(Agence agence, Client client) {
+		System.out.println( "************************************************" );
+        System.out.println( "***************Ajout d'un compte depuis l'agence***************" );
+		
+		System.out.println("");
+		int response;
+        do {
+        	System.out.println( "* 1 - Compte Simple                *" );
+        	System.out.println( "* 2 - Compte Epargne               *" );
+        	System.out.println( "* 3 - Compte Payant                *" );
+        	System.out.print  ( "        * Entrez votre choix : "      );
+        	response = scanner.nextInt();
+	   
+         } while ( 0 >= response || response > 3 );    
+	         scanner.nextLine();  
+	         switch ( response ) {        
+	         case 1:
+	        	 createCompteSimple(agence, client);
+	        	 break;        
+	         case 2:
+	             createCompteEpargne(agence, client);
+	             break;        
+	         case 3:
+	        	 createComptePayant(agence, client);
+	        	 break;
+	        
+	    }
+	}
+	
+	private static void createCompteSimple(Agence agence, Client client) {
+		
+		System.out.println("Entrez un nom de compte : ");
+		String label = scanner.nextLine();
+		
+		System.out.println("Entrez le solde de départ : ");
+		double solde = scanner2.nextDouble();
+		
+		System.out.println("Entrez le découvert autorisé : ");
+		double overdraft = scanner2.nextDouble();
+		
+		CompteSimple compte = new CompteSimple(label, solde, client, agence, overdraft);
+ 
+		em.getTransaction().begin();
+		em.persist(compte);
+		em.getTransaction().commit();
+		
+		
+		
+		System.out.println("");
+		System.out.println("**********************");
+		System.out.println("Le compte à été créé !");
+        dspMainMenu();
+		
+	}
+	
+	private static void createCompteEpargne(Agence agence, Client client) {
+		
+		System.out.println("Entrez un nom de compte : ");
+		String label = scanner.nextLine();
+		
+		System.out.println("Entrez le solde de départ : ");
+		double solde = scanner2.nextDouble();
+		
+		System.out.println("Entrez le taux du compte : ");
+		double taux = scanner.nextDouble();
+		
+		CompteEpargne compte = new CompteEpargne(label, solde, client, agence, taux);
+
+		em.getTransaction().begin();
+		em.persist(compte);
+		em.getTransaction().commit();
+		
+		
+		System.out.println("");
+		System.out.println("**********************");
+		System.out.println("Le compte à été créé !");
+        dspMainMenu();
+	}
+	
+	private static void createComptePayant(Agence agence, Client client) {
+		
+		System.out.println("Entrez un nom de compte : ");
+		String label = scanner.nextLine();
+		
+		System.out.println("Entrez le solde de départ : ");
+		double solde = scanner2.nextDouble();
+		
+		ComptePayant compte = new ComptePayant(label, solde, client, agence);
+
+		em.getTransaction().begin();
+		em.persist(compte);
+		em.getTransaction().commit();
+		
+		
+		System.out.println("");
+		System.out.println("**********************");
+		System.out.println("Le compte à été créé !");
+        dspMainMenu();
+	}
+    
+	private static void dspComptes() {
+		Query query1 = em.createQuery("FROM Compte");
+		List<Compte> comptes = query1.getResultList();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "****************Liste des comptes simples**************" );
+        if ( comptes.size() > 0 ) {
+        	System.out.println( "******************************************************" );
+            System.out.println( "index |id             | nom           " );
+            System.out.println( "******************************************************" );
+            int index = 0;
+            for ( Compte compte  : comptes ) {
+            	index++;
+	            System.out.println( index + "        | " + compte.toString() );
+	            System.out.println( "******************************************************" );
+            }
+            
+        } else {
+            System.out.println( "Aucun compte trouvé !!!" );
+        }
+  
+        dspMainMenu();
+	}
+	
+	//TRANSACTION
+	
+	public static void addTransaction() {
+        
+        int response;
+        do {
+       
+       System.out.println( "************************************************" );
+      System.out.println( "***************Transaction***************" );
+       
+       System.out.println("");
+       
+       //----------------------------------------------
+       
+       System.out.println( "* 1 - Crediter un compte               *" );
+      System.out.println( "* 2 - Debiter  un compte               *" );
+      System.out.print  ( "        * Entrez votre choix : "      );
+      response = scanner.nextInt();
+  
+        } while ( 0 >= response || response > 13 );    
+        scanner.nextLine();  
+        switch ( response ) {        
+        case 1:
+           creditCompte();
+          break;        
+        case 2:
+            debitCompte();
+          break;
+   }
+       
+   }
+   public static void creditCompte() {
+       
+   }
+   
+   public static void debitCompte() {
+       
+   }
 }

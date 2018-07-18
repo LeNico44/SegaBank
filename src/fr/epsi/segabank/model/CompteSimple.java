@@ -16,9 +16,18 @@ public class CompteSimple extends Compte {
 	
 	private double overdraft;
 	
-	
 	public CompteSimple() {
 		
+	}
+	
+	public CompteSimple(String label, double solde) {
+		this.setLabel(label);
+		this.setSolde(solde);
+	}
+	
+	public CompteSimple(String label, double solde, Client client, Agence agence, double overdraft) {
+		super(label, solde, client, agence);
+		this.overdraft = overdraft;
 	}
 	
 	public double getOverdraft() {
@@ -29,6 +38,15 @@ public class CompteSimple extends Compte {
 	public void setOverdraft(double overdraft) {
 		this.overdraft = overdraft;
 	}
+	
+	//METHODES
+	
+	public String toString() {          
+        
+        return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde()
+        + " le decouvert autorisé est " +this.getOverdraft();    
+            
+    }
 	
 	
 	

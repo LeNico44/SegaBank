@@ -9,7 +9,7 @@ import javax.persistence.*;
 //Declaration de la classe a JPA 
 //Toujours choisir "persistence"
 @Entity
-@DiscriminatorValue("PAYANT")
+@DiscriminatorValue("payant")
 public class ComptePayant extends Compte {
 
 	private static int fivePerCent = 5;
@@ -17,9 +17,19 @@ public class ComptePayant extends Compte {
 	public ComptePayant() {
 		
 	}
+	
+	public ComptePayant(String label, double solde, Client client, Agence agence) {
+		super(label, solde, client, agence);
+		this.setAgence(agence);
+	}
+	
+	//METHODES
 
-	public static int getFivePerCent() {
-		return fivePerCent;
+	public double getFivePerCent(double montant_operation) {
+		
+		double montant_maj = montant_operation -(montant_operation * fivePerCent / 100); 
+		
+		return montant_maj;
 	}
 		
 }

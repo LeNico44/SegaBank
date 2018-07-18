@@ -14,8 +14,7 @@ import javax.persistence.*;
 @Table(name = "compte")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="type")
-abstract class Compte {
-
+public abstract class Compte {
 	//Mapping ID
 	@Id	
 	@Column(name = "id_compte")
@@ -32,15 +31,22 @@ abstract class Compte {
 	@JoinColumn(name= "client_id")
 	private Client client;
 	
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="agence_id")
 	private Agence agence;
 	
 	@Column(insertable = false, updatable=false)
 	private String type;
-
+	
 	public Compte() {
 		
+	}
+	
+	public Compte(String label, double solde, Client client, Agence agence) {
+		this.label = label;
+		this.solde = solde;
+		this.client = client;
+		this.agence = agence;
 	}
 
 	public int getId_compte() {
@@ -99,6 +105,12 @@ abstract class Compte {
 		this.type = type;
 	}
 	
+	//METHODES
+	public String toString() {            
+        
+        return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde();    
+            
+    }
 
 	
 }

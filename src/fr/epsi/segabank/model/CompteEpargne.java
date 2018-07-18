@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 //Declaration de la classe a JPA 
 //Toujours choisir "persistence"
 @Entity
-@DiscriminatorValue("EPARGNE")
+@DiscriminatorValue("epargne")
 public class CompteEpargne extends Compte {
 	
 		
@@ -20,8 +20,13 @@ public class CompteEpargne extends Compte {
 		
 	}
 	
+	public CompteEpargne(String label, double solde, Client client, Agence agence, double taux) {
+		super(label, taux, client, agence);
+		this.taux = taux;
+	}
+	
 	public CompteEpargne(double taux) {
-		this();
+		super();
 		this.taux = taux;
 	}
 
@@ -37,12 +42,22 @@ public class CompteEpargne extends Compte {
 		this.taux = taux;
 	}
 
+	//METHODE
 
-
-	public void interetE() {
-		
-		
-	}
+	public double calculTauxInteret(double soldeCE) {
+        
+        double soldeEpargne = soldeCE + (soldeCE * taux / 100);
+        
+        return soldeEpargne;
+    }
+    
+     public String toString() {            
+            
+        return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde() 
+        +" Le taux d'interet est : " +taux;    
+            
+    }
+	
 	
 
 }
