@@ -111,6 +111,18 @@ public abstract class Compte {
         return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde();    
             
     }
+	
+	public double operation(double montant, String type) {
+		double new_solde;
+		if(type.equals("credit")) {
+			new_solde = this.getSolde() + montant;
+		}else {
+			new_solde = this.getSolde() - montant;
+		}
+		
+		
+		return new_solde;
+	}
 
 	
 }

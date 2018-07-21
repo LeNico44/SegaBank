@@ -53,8 +53,7 @@ public class CompteEpargne extends Compte {
     
      public String toString() {            
             
-        return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde() 
-        +" Le taux d'interet est : " +taux;    
+        return  super.toString() +" Le taux d'interet est : " +taux;    
             
     }
 	

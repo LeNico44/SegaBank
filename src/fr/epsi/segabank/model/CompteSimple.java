@@ -3,6 +3,8 @@ package fr.epsi.segabank.model;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
+import fr.epsi.segabank.test.Main;
+
 /**
  * @author lolo
  *
@@ -43,12 +45,8 @@ public class CompteSimple extends Compte {
 	
 	public String toString() {          
         
-        return  "Le nom  du compte est " +this.getLabel() +" son type est " +this.getType() +" Le solde est de : " +this.getSolde()
-        + " le decouvert autorisé est " +this.getOverdraft();    
+        return  super.toString() + " le decouvert autorisé est " +this.getOverdraft();    
             
     }
-	
-	
-	
 
 }

@@ -12,8 +12,6 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import org.hibernate.query.criteria.internal.expression.function.AggregationFunction.COUNT;
-
 import fr.epsi.segabank.model.Adresse;
 import fr.epsi.segabank.model.Agence;
 import fr.epsi.segabank.model.Client;
@@ -21,6 +19,7 @@ import fr.epsi.segabank.model.Compte;
 import fr.epsi.segabank.model.CompteEpargne;
 import fr.epsi.segabank.model.ComptePayant;
 import fr.epsi.segabank.model.CompteSimple;
+import fr.epsi.segabank.model.Transaction;
 
 /**
  * @author nicolas
@@ -92,11 +91,23 @@ public class Main {
             case 5:
                 addClient();
                 break;
+            case 6:
+                editClient();
+                break;
+            case 7:
+                deleteClient();
+                break;
+            case 8:
+                dspClients();
+                break;
             case 9:
             	addCompte(); 
             	break;
             case 10:
             	addTransaction();
+            	break;
+            case 11:
+            	deleteCompte();
             	break;
             case 12:
             	dspComptes();
@@ -156,8 +167,63 @@ public class Main {
     }
 	
 	public static void editAgence() {
-		System.out.println("Bientôt vous pourrez modifier une agence...");
-		dspMainMenu();
+		Query query1 = em.createQuery("FROM Agence");
+		List<Agence> agences = query1.getResultList();
+		
+		Agence lAgence = new Agence();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "************Modification d'une agence***********" );
+        if ( agences.size() > 0 ) {
+            System.out.println( "Sélectionnez l'agence à modifier..." );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           " );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Agence agence  : agences ) {
+            System.out.println( index++ + "        | " + agence.getId() + "            | " + agence.getLabel());
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index à modifier (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= agences.size() );
+            if ( -1 != response ) {
+            	lAgence = agences.get( response );
+                
+                System.out.println( "Etes vous sûr de vouloir modifier  (" + lAgence.getLabel() +") ?(o/n)" );                     
+                String rep = scanner.nextLine();
+
+                if (rep.equals("o")) {
+                	
+                	System.out.println("Modifiez le nom de l'agence (" +  lAgence.getLabel() + ") ou copier le nom actuel et valider avec la touche enter");
+                	lAgence.setLabel(scanner.nextLine());
+
+                    System.out.println("Modifiez le code de l'agence (" +  lAgence.getCodeAgence() + ") ou copier le code actuel et valider avec la touche enter");
+                    lAgence.setCodeAgence(scanner2.nextInt());
+                    
+                    System.out.println("Modifiez la numéro de la voie de l'adresse de l'agence (" +  lAgence.getAdresse().getNumeroVoie() + ") ou copier le numéro actuel et valider avec la touche enter");
+                    lAgence.getAdresse().setNumeroVoie(scanner2.nextInt());
+                    
+                    System.out.println("Modifiez le type et le nom de la voie de l'adresse de l'agence (" +  lAgence.getAdresse().getVoie() + ") ou copier la voie actuelle et valider avec la touche enter");
+                    lAgence.getAdresse().setVoie(scanner.nextLine());
+                    
+                    System.out.println("Modifiez le code postal de l'agence (" +  lAgence.getAdresse().getCodePostal() + ") ou copier le code postal actuel et valider avec la touche enter");
+                    lAgence.getAdresse().setCodePostal(scanner2.nextInt());
+                    
+                    System.out.println("Modifiez la ville de l'agence (" +  lAgence.getAdresse().getVille() + ") ou copier la ville actuelle et valider avec la touche enter");
+                    lAgence.getAdresse().setVille(scanner.nextLine());
+                    
+                    em.getTransaction().begin();
+            		em.merge(lAgence);
+            		em.getTransaction().commit();
+                }
+            }
+        } else {
+            System.out.println( "Aucun élément trouvé !!!" );
+        }
+  
+        dspMainMenu();
 	}
 	
 	public static void deleteAgence() {
@@ -212,11 +278,11 @@ public class Main {
         System.out.println( "****************Liste des agences**************" );
         if ( agences.size() > 0 ) {
         	System.out.println( "******************************************************" );
-            System.out.println( "index |id             | nom           " );
+            System.out.println( "index |id             | nom             | adresse " );
             System.out.println( "******************************************************" );
             int index = 0;
             for ( Agence agence  : agences ) {
-            System.out.println( index++ + "        | " + agence.getId() + "            | " + agence.getLabel() );
+            System.out.println( index++ + "        | " + agence.getId() + "            | " + agence.getLabel() +"        | " + agence.getAdresse().getNumeroVoie() + " " + agence.getAdresse().getVoie() + " " + agence.getAdresse().getCodePostal() + " " + agence.getAdresse().getVille());
             System.out.println( "******************************************************" );
             }
             
@@ -252,16 +318,19 @@ public class Main {
             if ( -1 != response ) {
                 Agence lAgence = agences.get( response );
                 addClientAgence(lAgence);
+            }else {
+            	dspMainMenu();
             }
         } else {
             System.out.println( "Aucune agence n'a été trouvée !!!" );
+            dspMainMenu();
         }
 	}
 	
 	public static void addClientAgence(Agence agence) {
 		
 		System.out.println( "************************************************" );
-        System.out.println( "***************Ajout d'une client***************" );
+        System.out.println( "****************Ajout d'un client***************" );
 		
 		System.out.println("");
 		
@@ -307,33 +376,171 @@ public class Main {
         dspMainMenu();
     }
 	
+	public static void editClient() {
+		Query query1 = em.createQuery("FROM Client");
+		List<Client> clients = query1.getResultList();
+		
+		Client leClient = new Client();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "************Modification d'un client***********" );
+        if ( clients.size() > 0 ) {
+            System.out.println( "Sélectionnez le client à modifier..." );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           " );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Client client  : clients ) {
+            System.out.println( index++ + "        | " + client.getId() + "            | " + client.getNom() + "            | " + client.getPrenom());
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index à modifier (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= clients.size() );
+            if ( -1 != response ) {
+            	leClient = clients.get( response );
+                
+                System.out.println( "Etes vous sûr de vouloir modifier  (" + leClient.getNom() + " " + leClient.getPrenom() +") ?(o/n)" );                     
+                String rep = scanner.nextLine();
+
+                if (rep.equals("o")) {
+                	
+                	System.out.println("Modifiez le nom du client (" +  leClient.getNom() + ") ou copier le nom actuel et valider avec la touche enter");
+                    leClient.setNom(scanner.nextLine());
+
+                    System.out.println("Modifiez le prénom du client (" +  leClient.getPrenom() + ") ou copier le prénom actuel et valider avec la touche enter");
+                    leClient.setPrenom(scanner.nextLine());
+                    
+                    System.out.println("Modifiez la numéro de la voie de l'adresse du client (" +  leClient.getAdresse().getNumeroVoie() + ") ou copier le numéro actuel et valider avec la touche enter");
+                    leClient.getAdresse().setNumeroVoie(scanner2.nextInt());
+                    
+                    System.out.println("Modifiez le type et le nom de la voie de l'adresse du client (" +  leClient.getAdresse().getVoie() + ") ou copier la voie actuelle et valider avec la touche enter");
+                    leClient.getAdresse().setVoie(scanner.nextLine());
+                    
+                    System.out.println("Modifiez le code postal du client (" +  leClient.getAdresse().getCodePostal() + ") ou copier le code postal actuel et valider avec la touche enter");
+                    leClient.getAdresse().setCodePostal(scanner2.nextInt());
+                    
+                    System.out.println("Modifiez la ville du client (" +  leClient.getAdresse().getVille() + ") ou copier la ville actuelle et valider avec la touche enter");
+                    leClient.getAdresse().setVille(scanner.nextLine());
+                    
+                    System.out.println("Choisir dans la liste l'agence du client. L'agence actuelle (" + leClient.getAgence().getLabel() +") ");
+                    
+                    Query query2 = em.createQuery("FROM Agence");
+            		List<Agence> agences = query2.getResultList();
+            		
+            		Agence lAgence = new Agence();
+            	       
+               	 	System.out.println( "*********************************************************" );
+                    System.out.println( "************Modification de l'agence du client***********" );
+                    if ( agences.size() > 0 ) {
+                        System.out.println( "Sélectionnez une agence pour le client..." );
+                        System.out.println( "**************************************************************" );
+                        System.out.println( "index    |id             | nom           " );
+                        System.out.println( "**************************************************************" );
+                        int index2 = 0;
+                        for ( Agence agence  : agences ) {
+                        System.out.println( index2++ + "        | " + agence.getId() + "            | " + agence.getLabel());
+                        }
+                        int response2;
+                        do {
+                            System.out.print( "Entrez Le n° Index sélectionné (-1 pour annuler) : " );
+                            response2 = scanner2.nextInt();
+                        } while ( response2 < -1 || response2 >= agences.size() );
+                        if ( -1 != response2 ) {
+                        	lAgence = agences.get( response2 );
+                        	leClient.setAgence(lAgence);
+                            
+                            }
+                        }
+                    } else {
+                        System.out.println( "Aucun élément trouvé !!!" );
+                    }
+                    
+                    em.getTransaction().begin();
+            		em.merge(leClient);
+            		em.getTransaction().commit();
+                }
+            
+        } else {
+            System.out.println( "Aucun élément trouvé !!!" );
+        }
+  
+        dspMainMenu();
+	}
+	
+	public static void deleteClient() {
+		Query query1 = em.createQuery("FROM Client");
+		List<Client> clients = query1.getResultList();
+		
+		Client leClient = new Client();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "************Suppression d'un client***********" );
+        if ( clients.size() > 0 ) {
+            System.out.println( "Sélectionnez le client à supprimer..." );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           " );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Client client  : clients ) {
+            System.out.println( index++ + "        | " + client.getId() + "            | " + client.getNom() + "            | " + client.getPrenom());
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= clients.size() );
+            if ( -1 != response ) {
+            	leClient = clients.get( response );
+                
+                System.out.println( "Etes vous sûr de vouloir supprimer  (" + leClient.getNom() + " " + leClient.getPrenom() +") ?(o/n)" );                     
+                String rep = scanner.nextLine();
+                
+                
+                if (rep.equals("o")) {
+                System.out.println("delete " + leClient.getNom() + " " + leClient.getPrenom());
+                        em.getTransaction().begin();
+                		em.remove(leClient);
+                		em.getTransaction().commit();
+                }
+            }
+        } else {
+            System.out.println( "Aucun élément trouvé !!!" );
+        }
+  
+        dspMainMenu();
+    }
+	
+	public static void dspClients() {
+		Query query1 = em.createQuery("FROM Client");
+		List<Client> clients = query1.getResultList();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "****************Liste des clients**************" );
+        if ( clients.size() > 0 ) {
+        	System.out.println( "***************************************************************************************************************************" );
+            System.out.println( "index |id             | nom          | prenom          | adresse                                           | agence" );
+            System.out.println( "***************************************************************************************************************************" );
+            int index = 0;
+            for ( Client client  : clients ) {
+            System.out.println( index++ + "     | " + client.getId() + "            | " + client.getNom() + "        | " + client.getPrenom() +"        | " + client.getAdresse().getNumeroVoie() + " " + client.getAdresse().getVoie() + " " + client.getAdresse().getCodePostal() + " " + client.getAdresse().getVille() + "            | " + client.getAgence().getLabel());
+            System.out.println( "***************************************************************************************************************************" );
+            }
+            
+        } else {
+            System.out.println( "Aucun élément trouvé !!!" );
+        }
+  
+        dspMainMenu();
+	}
+	
 	//COMPTE
 	
 	public static void addCompte() {
-		System.out.println( "************************************************" );
-        System.out.println( "***************Ajout d'un compte****************" );
+		Agence lAgence = new Agence();
+		Client leClient = new Client();
 		
-		System.out.println("");
-		int response;
-        do {
-        	System.out.println( "* 1 - Compte depuis une agence     *" );
-        	System.out.println( "* 2 - Compte depuis un client      *" );
-        	System.out.print  ( "        * Entrez votre choix : "      );
-        	response = scanner.nextInt();
-	   
-         } while ( 0 >= response || response > 3 );    
-	         scanner.nextLine();  
-	         switch ( response ) {        
-	         case 1:
-	        	 choixAgence();
-	        	 break;        
-	         case 2:
-	        	 //choixClient();
-	             break;        
-	    }
-	}
-	
-	public static void choixAgence() {
 		Query query1 = em.createQuery("FROM Agence");
 		List<Agence> agences = query1.getResultList();
 	       
@@ -350,22 +557,52 @@ public class Main {
             }
             int response;
             do {
-                System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
+                System.out.print( "Entrez Le n° Index de votre choix (-1 pour annuler) : " );
                 response = scanner2.nextInt();
             } while ( response < -1 || response >= agences.size() );
             if ( -1 != response ) {
-                Agence lAgence = agences.get( response );
-                Client clientNull = null;
-                addCompteAgence(lAgence, clientNull);
+                lAgence = agences.get( response ); 
             }
+            
         } else {
             System.out.println( "Aucune agence n'a été trouvée !!!" );
+            dspMainMenu();
         }
+        
+        Query query2 = em.createQuery("FROM Client");
+		List<Client> clients = query2.getResultList();
+	       
+   	 	System.out.println( "***********************************************" );
+        System.out.println( "****************Liste des clients**************" );
+        if ( clients.size() > 0 ) {
+            System.out.println( "Sélectionnez le client pour laquelle créer un compte" );
+            System.out.println( "**************************************************************" );
+            System.out.println( "index    |id             | nom           | prenom" );
+            System.out.println( "**************************************************************" );
+            int index = 0;
+            for ( Client client  : clients ) {
+            System.out.println( index++ + "        | " + client.getId() + "            | " + client.getNom() + "            | " + client.getPrenom());
+            }
+            int response;
+            do {
+                System.out.print( "Entrez Le n° Index de votre choix (-1 pour annuler) : " );
+                response = scanner2.nextInt();
+            } while ( response < -1 || response >= clients.size() );
+            if ( -1 != response ) {
+                leClient = clients.get( response );
+            }
+        } else {
+            System.out.println( "Aucun client n'a été trouvée !!!" );
+            dspMainMenu();
+        }
+        
+        addCompteAgence(lAgence, leClient);
 	}
+	
 	
 	public static void addCompteAgence(Agence agence, Client client) {
 		System.out.println( "************************************************" );
-        System.out.println( "***************Ajout d'un compte depuis l'agence***************" );
+        System.out.println( "****************Ajout d'un compte***************" );
 		
 		System.out.println("");
 		int response;
@@ -462,6 +699,79 @@ public class Main {
 		System.out.println("Le compte à été créé !");
         dspMainMenu();
 	}
+	
+	private static void deleteCompte() {
+		Query query1 = em.createQuery("FROM Compte");
+		List<Compte> comptes = query1.getResultList();
+				
+  	 	System.out.println( "***********************************************" );
+        System.out.println( "************Suppression d'un compte************" );
+        if ( comptes.size() > 0 ) {
+        	System.out.println( "Sélectionnez le compte à supprimer..." );
+        	System.out.println( "**************************************************************" );
+        	System.out.println( "index    |id             | nom           " );
+        	System.out.println( "**************************************************************" );
+        	int index = 0;
+           
+        	List<String> types = new ArrayList();
+           
+        	for ( Compte compte  : comptes ) {
+    			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
+    			types.add(compte.getType());
+        	}
+        	int response;
+        	String rep;
+        	do {
+        		System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
+        		response = scanner2.nextInt();
+        	} while ( response < -1 || response >= comptes.size() );
+        	
+        	if ( -1 != response ) {
+        		if (types.get(response) == "simple") {
+        			CompteSimple compteSimple = new CompteSimple();
+        			compteSimple = (CompteSimple) comptes.get(response);
+     
+        			System.out.println( "Etes vous sûr de vouloir crediter  (" + compteSimple.getLabel() + ") ?(o/n)" );                     
+        			rep = scanner.nextLine();
+        			if (rep.equals("o")) {
+	 	              	System.out.println("delete "  );
+	 	              	em.getTransaction().begin();
+	 	              	em.remove(compteSimple);
+	 	              	em.getTransaction().commit();
+        			}
+                 
+        		}else if (types.get(response) == "payant") {
+		        	 ComptePayant comptePayant = new ComptePayant();
+		        	 comptePayant = (ComptePayant) comptes.get(response);
+		        	 
+		        	 System.out.println( "Etes vous sûr de vouloir crediter  (" + comptePayant.getLabel() + ") ?(o/n)" );                     
+		             rep = scanner.nextLine();
+		             if (rep.equals("o")) {
+		              	System.out.println("delete "  );
+		              	em.getTransaction().begin();
+		              	em.remove(comptePayant);
+		              	em.getTransaction().commit();
+		             }
+            	 
+        		}else {
+	            	 CompteEpargne compteEpargne = new CompteEpargne();
+	            	 compteEpargne = (CompteEpargne) comptes.get(response);
+	            	 
+	            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
+	            	 rep = scanner.nextLine();
+	            	 if (rep.equals("o")) {
+	                     	System.out.println("delete "  );
+	                     	em.getTransaction().begin();
+	                     	em.remove(compteEpargne);
+	                     	em.getTransaction().commit();
+	            	 }
+        		}
+        	} else {
+        		System.out.println( "Aucun élément trouvé !!!" );
+        	}
+        }
+        dspMainMenu();
+	}
     
 	private static void dspComptes() {
 		Query query1 = em.createQuery("FROM Compte");
@@ -491,97 +801,263 @@ public class Main {
 	
 	public static void addTransaction() {
         
-        int response;
+		int response;
         do {
        
-       System.out.println( "************************************************" );
-      System.out.println( "***************Transaction***************" );
+	       System.out.println( "************************************************" );
+	       System.out.println( "******************Transaction*******************" );
        
-       System.out.println("");
+	       System.out.println("");
        
-       //----------------------------------------------
+	       //----------------------------------------------
        
-       System.out.println( "* 1 - Crediter un compte               *" );
-      System.out.println( "* 2 - Debiter  un compte               *" );
-      System.out.print  ( "        * Entrez votre choix : "      );
-      response = scanner.nextInt();
+	       System.out.println( "* 1 - Crediter un compte               *" );
+	       System.out.println( "* 2 - Debiter  un compte               *" );
+	       System.out.print  ( "        * Entrez votre choix : "      );
+	       response = scanner.nextInt();
   
         } while ( 0 >= response || response > 13 );    
         scanner.nextLine();  
         switch ( response ) {        
-        case 1:
-           creditCompte();
-          break;        
-        case 2:
-            debitCompte();
-          break;
+	        case 1:
+	        	creditCompte();
+	          	break;        
+	        case 2:
+	        	debitCompte();
+	        	break;
+        }   
    }
-       
-   }
+	
    public static void creditCompte() {
+	   String type = "credit";
 	   
 	   Query query1 = em.createQuery("FROM Compte");
-		List<Compte> comptes = query1.getResultList();
+	   List<Compte> comptes = query1.getResultList();
 				
-  	 	System.out.println( "***********************************************" );
-        System.out.println( "************Selection d'un compte***********" );
+	   System.out.println( "****************************************************" );
+       System.out.println( "************Choix d'un compte à créditer************" );
        if ( comptes.size() > 0 ) {
-           System.out.println( "Sélectionnez le compte à crediter..." );
-           System.out.println( "**************************************************************" );
-           System.out.println( "index    |id             | nom           " );
-           System.out.println( "**************************************************************" );
-           int index = 0;
-           
-           List<String> types = new ArrayList();
-           
-           for ( Compte compte  : comptes ) {
-           System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
-           types.add(compte.getType());
-           }
-           int response;
-           String rep;
-           do {
-               System.out.print( "Entrez Le n° Index à supprimer (-1 pour annuler) : " );
-               response = scanner2.nextInt();
-           } while ( response < -1 || response >= comptes.size() );
-           if ( -1 != response ) {
-             if (types.get(response) == "simple") {
-            	 CompteSimple compteSimple = new CompteSimple();
-            	 compteSimple = (CompteSimple) comptes.get(response);
-            	 
-            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteSimple.getLabel() + ") ?(o/n)" );                     
-                 rep = scanner.nextLine();
-             }else if (types.get(response) == "payant") {
-            	 ComptePayant comptePayant = new ComptePayant();
-            	 comptePayant = (ComptePayant) comptes.get(response);
-            	 
-            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + comptePayant.getLabel() + ") ?(o/n)" );                     
-                 rep = scanner.nextLine();
-            	 
-             }else {
+       	System.out.println( "Sélectionnez le compte à créditer**************************************" );
+       	System.out.println( "index    |id             | nom            | type                | solde" );
+       	System.out.println( "***********************************************************************" );
+       	int index = 0;
+          
+       	List<String> types = new ArrayList();
+          
+       	for ( Compte compte  : comptes ) {
+   			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() + "            | " + compte.getType() + "            | " + compte.getSolde() );
+   			types.add(compte.getType());
+       	}
+       	int response;
+       	String rep;
+       	do {
+       		System.out.print( "Entrez Le n° Index du compte à créditer (-1 pour annuler) : " );
+       		response = scanner2.nextInt();
+       	} while ( response < -1 || response >= comptes.size() );
+       	
+       	if ( -1 != response ) {
+
+       		if (types.get(response).equals("simple")) {
+       			CompteSimple compteSimple = new CompteSimple();
+       			compteSimple = (CompteSimple) comptes.get(response);
+    
+       			System.out.println( "Etes vous sûr de vouloir créditer le compte (" + compteSimple.getLabel() + ") ?(o/n)" );                     
+       			rep = scanner.nextLine();
+       			if (rep.equals("o")) {
+	 	              	System.out.println("le compte à créditer : " + compteSimple.getLabel()  );
+	 	              	System.out.println("Indiquez le montant à créditer : ");
+	 	              	Double value = scanner2.nextDouble();
+	 	              	System.out.println("Indiquez un label pour le crédit : ");
+	 	              	String label = scanner.nextLine();
+	 	              	System.out.println("Etes vous sûr de vouloir créditer de " + value + "€ le compte n° " + compteSimple.getId_compte() + " ?(o/n)");
+	 	              	String validation = scanner.nextLine();
+	 	              	
+	 	              	if (validation.equals("o")) {
+	 	              		Transaction transaction = new Transaction(value, label, compteSimple, type, compteSimple.getClient());
+	 	              		compteSimple.setSolde(compteSimple.operation(value, type));
+	 	              		
+	 	              		em.getTransaction().begin();
+	 	              		em.merge(compteSimple);
+	 	              		em.persist(transaction);
+	 	              		em.getTransaction().commit();
+	 	              	}
+	 	              	System.out.println("Le nouveau solde du compte : " + compteSimple.getSolde());
+       			}
+                
+       		}else if (types.get(response).equals("payant")) {
+	        	 ComptePayant comptePayant = new ComptePayant();
+	        	 comptePayant = (ComptePayant) comptes.get(response);
+	        	 
+	        	 System.out.println( "Etes vous sûr de vouloir créditer le compte (" + comptePayant.getLabel() + ") ?(o/n)" );                     
+	             rep = scanner.nextLine();
+	             if (rep.equals("o")) {
+	 	              	System.out.println("le compte à créditer : " + comptePayant.getLabel()  );
+	 	              	System.out.println("Indiquez le montant à créditer : ");
+	 	              	Double value = scanner2.nextDouble();
+	 	              	System.out.println("Indiquez un label pour le crédit : ");
+	 	              	String label = scanner.nextLine();
+	 	              	System.out.println("Etes vous sûr de vouloir créditer de " + value + "€ le compte n° " + comptePayant.getId_compte() + " ?(o/n)");
+	 	              	String validation = scanner.nextLine();
+	 	              	
+	 	              	if (validation.equals("o")) {
+	 	              		Transaction transaction = new Transaction(value, label, comptePayant, type, comptePayant.getClient());
+	 	              		comptePayant.setSolde(comptePayant.operation(value, type));
+	 	              		
+	 	              		em.getTransaction().begin();
+	 	              		em.merge(comptePayant);
+	 	              		em.persist(transaction);
+	 	              		em.getTransaction().commit();
+	 	              	}
+	 	              	System.out.println("Le nouveau solde du compte : " + comptePayant.getSolde());
+    			}
+           	 
+       		}else if (types.get(response).equals("epargne")){
             	 CompteEpargne compteEpargne = new CompteEpargne();
             	 compteEpargne = (CompteEpargne) comptes.get(response);
             	 
-            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
+            	 System.out.println( "Etes vous sûr de vouloir créditer le compte (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
             	 rep = scanner.nextLine();
-             }
-              
-               
-               
-               if (rep.equals("o")) {
-               System.out.println("delete "  );
-            
-
-               }
-           }
-       } else {
-           System.out.println( "Aucun élément trouvé !!!" );
+            	 if (rep.equals("o")) {
+	 	              	System.out.println("le compte à créditer : " + compteEpargne.getLabel()  );
+	 	              	System.out.println("Indiquez le montant à créditer : ");
+	 	              	Double value = scanner2.nextDouble();
+	 	              	System.out.println("Indiquez un label pour le crédit : ");
+	 	              	String label = scanner.nextLine();
+	 	              	System.out.println("Etes vous sûr de vouloir créditer de " + value + "€ le compte n° " + compteEpargne.getId_compte() + " ?(o/n)");
+	 	              	String validation = scanner.nextLine();
+	 	              	
+	 	              	if (validation.equals("o")) {
+	 	              		Transaction transaction = new Transaction(value, label, compteEpargne, type, compteEpargne.getClient());
+	 	              		compteEpargne.setSolde(compteEpargne.operation(value, type));
+	 	              		
+	 	              		em.getTransaction().begin();
+	 	              		em.merge(compteEpargne);
+	 	              		em.persist(transaction);
+	 	              		em.getTransaction().commit();
+	 	              	}
+	 	              	System.out.println("Le nouveau solde du compte : " + compteEpargne.getSolde());
+            	 }
+       		}
+       	} else {
+       		System.out.println( "Aucun élément trouvé !!!" );
+       	}
        }
- 
-       
+       dspMainMenu();
    }
-   
+
    public static void debitCompte() {
-       
+	   String type = "debit";
+	   
+	   Query query1 = em.createQuery("FROM Compte");
+	   List<Compte> comptes = query1.getResultList();
+				
+	   System.out.println( "***************************************************" );
+       System.out.println( "************Choix d'un compte à débiter************" );
+       if ( comptes.size() > 0 ) {
+       	System.out.println( "Sélectionnez le compte à débiter***************************************");
+       	System.out.println( "index    |id             | nom            | type                | solde" );
+       	System.out.println( "***********************************************************************" );
+       	int index = 0;
+          
+       	List<String> types = new ArrayList();
+          
+       	for ( Compte compte  : comptes ) {
+   			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() + "            | " + compte.getType() + "            | " + compte.getSolde() );
+   			types.add(compte.getType());
+       	}
+       	int response;
+       	String rep;
+       	do {
+       		System.out.print( "Entrez Le n° Index du compte à débiter (-1 pour annuler) : " );
+       		response = scanner2.nextInt();
+       	} while ( response < -1 || response >= comptes.size() );
+       	
+       	if ( -1 != response ) {
+       		if (types.get(response).equals("simple")) {
+       			CompteSimple compteSimple = new CompteSimple();
+       			compteSimple = (CompteSimple) comptes.get(response);
+    
+       			System.out.println( "Etes vous sûr de vouloir débiter le compte (" + compteSimple.getLabel() + ") ?(o/n)" );                     
+       			rep = scanner.nextLine();
+       			if (rep.equals("o")) {
+ 	              	System.out.println("le compte à débiter : " + compteSimple.getLabel()  );
+ 	              	System.out.println("Indiquez le montant à débiter : ");
+ 	              	Double value = scanner2.nextDouble();
+ 	              	System.out.println("Indiquez un label pour le débit : ");
+ 	              	String label = scanner.nextLine();
+ 	              	System.out.println("Etes vous sûr de vouloir débiter de " + value + "€ le compte n° " + compteSimple.getId_compte() + " ?(o/n)");
+ 	              	String validation = scanner.nextLine();
+ 	              	
+ 	              	if (validation.equals("o")) {
+ 	              		Transaction transaction = new Transaction(value, label, compteSimple, type, compteSimple.getClient());
+ 	              		compteSimple.setSolde(compteSimple.operation(value, type));
+ 	              		
+ 	              		em.getTransaction().begin();
+ 	              		em.merge(compteSimple);
+ 	              		em.persist(transaction);
+ 	              		em.getTransaction().commit();
+ 	              	}
+ 	              System.out.println("Le nouveau solde du compte : " + compteSimple.getSolde());
+   			}
+                
+       		}else if (types.get(response).equals("payant")) {
+	        	 ComptePayant comptePayant = new ComptePayant();
+	        	 comptePayant = (ComptePayant) comptes.get(response);
+	        	 
+	        	 System.out.println( "Etes vous sûr de vouloir débiter le compte  (" + comptePayant.getLabel() + ") ?(o/n)" );                     
+	             rep = scanner.nextLine();
+	             if (rep.equals("o")) {
+	 	              	System.out.println("le compte à débiter : " + comptePayant.getLabel()  );
+	 	              	System.out.println("Indiquez le montant à débiter : ");
+	 	              	Double value = scanner2.nextDouble();
+	 	              	System.out.println("Indiquez un label pour le débit : ");
+	 	              	String label = scanner.nextLine();
+	 	              	System.out.println("Etes vous sûr de vouloir débiter de " + value + "€ le compte n° " + comptePayant.getId_compte() + " ?(o/n)");
+	 	              	String validation = scanner.nextLine();
+	 	              	
+	 	              	if (validation.equals("o")) {
+	 	              		Transaction transaction = new Transaction(value, label, comptePayant, type, comptePayant.getClient());
+	 	              		comptePayant.setSolde(comptePayant.operation(value, type));
+	 	              		
+	 	              		em.getTransaction().begin();
+	 	              		em.merge(comptePayant);
+	 	              		em.persist(transaction);
+	 	              		em.getTransaction().commit();
+	 	              	}
+	 	              	System.out.println("Le nouveau solde du compte : " + comptePayant.getSolde());
+	             }
+           	 
+       		}else if (types.get(response).equals("epargne")) {
+            	 CompteEpargne compteEpargne = new CompteEpargne();
+            	 compteEpargne = (CompteEpargne) comptes.get(response);
+            	 
+            	 System.out.println( "Etes vous sûr de vouloir débiter le compte  (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
+            	 rep = scanner.nextLine();
+            	 if (rep.equals("o")) {
+	 	              	System.out.println("le compte à débiter : " + compteEpargne.getLabel()  );
+	 	              	System.out.println("Indiquez le montant à débiter : ");
+	 	              	Double value = scanner2.nextDouble();
+	 	              	System.out.println("Indiquez un label pour le débit : ");
+	 	              	String label = scanner.nextLine();
+	 	              	System.out.println("Etes vous sûr de vouloir débiter de " + value + "€ le compte n° " + compteEpargne.getId_compte() + " ?(o/n)");
+	 	              	String validation = scanner.nextLine();
+	 	              	
+	 	              	if (validation.equals("o")) {
+	 	              		Transaction transaction = new Transaction(value, label, compteEpargne, type, compteEpargne.getClient());
+	 	              		compteEpargne.setSolde(compteEpargne.operation(value, type));
+	 	              		
+	 	              		em.getTransaction().begin();
+	 	              		em.merge(compteEpargne);
+	 	              		em.persist(transaction);
+	 	              		em.getTransaction().commit();
+	 	              	}
+	 	              	System.out.println("Le nouveau solde du compte : " + compteEpargne.getSolde());
+            	 }
+       		}
+       	} else {
+       		System.out.println( "Aucun élément trouvé !!!" );
+       	}
+       }
+       dspMainMenu();
    }
 }

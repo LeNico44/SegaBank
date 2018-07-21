@@ -31,5 +31,5 @@ public class ComptePayant extends Compte {
 		
 		return montant_maj;
 	}
-		
+	
 }

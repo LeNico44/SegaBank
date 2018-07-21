@@ -28,7 +28,7 @@ public class Adresse implements Serializable{
 	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="agence_id")
 	private Agence agence;
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.ALL)
 	@JoinColumn(name="client_id")
 	private Client client;
 

@@ -1,8 +1,11 @@
 package fr.epsi.segabank.model;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
 /**
  * @author lolo
  *
@@ -19,9 +22,10 @@ public class Transaction {
 	@GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id_transac;
 	private double value;
-	private Date date;
+	@CreationTimestamp
+	private LocalDateTime date;
 	private String label;
-	private boolean type;
+	private String type;
 	
 	@ManyToOne
 	@JoinColumn(name = "id_compte")
@@ -33,7 +37,15 @@ public class Transaction {
 	
 	public Transaction() {
 		
-	}	
+	}
+	
+	public Transaction(double value, String label, Compte compte, String type, Client client) {
+		this.value = value;
+		this.label = label;
+		this.compte = compte;
+		this.type = type;
+		this.client = client;
+	}
 	
 	public Integer getId_transac() {
 		return id_transac;
@@ -52,12 +64,12 @@ public class Transaction {
 	public void setValue(double value) {
 		this.value = value;
 	}
-
-	public Date getDate() {
+	
+	public LocalDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
 
@@ -69,11 +81,11 @@ public class Transaction {
 		this.label = label;
 	}
 
-	public boolean isType() {
+	public String isType() {
 		return type;
 	}
 
-	public void setType(boolean type) {
+	public void setType(String type) {
 		this.type = type;
 	}
 
