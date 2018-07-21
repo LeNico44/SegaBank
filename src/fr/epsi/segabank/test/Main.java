@@ -12,6 +12,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
+import fr.epsi.segabank.dao.AgenceDAO;
+import fr.epsi.segabank.dao.ClientDAO;
 import fr.epsi.segabank.model.Adresse;
 import fr.epsi.segabank.model.Agence;
 import fr.epsi.segabank.model.Client;
@@ -151,12 +153,12 @@ public class Main {
 		adresse.setAgence(agence);
 		
 		
-		
-
-		em.getTransaction().begin();
-		em.persist(adresse);
-		em.persist(agence);
-		em.getTransaction().commit();
+		AgenceDAO agenceDao = new AgenceDAO();
+        try {
+        	agenceDao.create( agence );
+        } catch ( java.sql.SQLException e ) {
+            System.out.println( e.getMessage() );
+        }
 		
 		
 		
@@ -214,9 +216,12 @@ public class Main {
                     System.out.println("Modifiez la ville de l'agence (" +  lAgence.getAdresse().getVille() + ") ou copier la ville actuelle et valider avec la touche enter");
                     lAgence.getAdresse().setVille(scanner.nextLine());
                     
-                    em.getTransaction().begin();
-            		em.merge(lAgence);
-            		em.getTransaction().commit();
+                    AgenceDAO agenceDao = new AgenceDAO();
+                    try {
+                    	agenceDao.update( lAgence );
+                    } catch ( java.sql.SQLException e ) {
+                        System.out.println( e.getMessage() );
+                    }
                 }
             }
         } else {
@@ -256,10 +261,14 @@ public class Main {
                 
                 
                 if (rep.equals("o")) {
-                System.out.println("delete " + lAgence.getLabel());
-                        em.getTransaction().begin();
-                		em.remove(agences.get( response ));
-                		em.getTransaction().commit();
+                	System.out.println("delete " + lAgence.getLabel());
+                	
+                	AgenceDAO agenceDao = new AgenceDAO();
+	                try {
+	                	agenceDao.delete( lAgence );
+	                } catch ( java.sql.SQLException e ) {
+	                    System.out.println( e.getMessage() );
+	                }
 
                 }
             }
@@ -360,14 +369,13 @@ public class Main {
 		
 		adresse.setClient(client);
 		
-		
-		
 
-		em.getTransaction().begin();
-		em.persist(adresse);
-		em.persist(client);
-		em.getTransaction().commit();
-		
+        ClientDAO clinetDao = new ClientDAO();
+        try {
+        	clinetDao.create( client );
+        } catch ( java.sql.SQLException e ) {
+            System.out.println( e.getMessage() );
+        }
 		
 		
 		System.out.println("");

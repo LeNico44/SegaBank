@@ -27,7 +27,7 @@ public class Client implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="agence_id")
 	private Agence agence;
-	@OneToOne
+	@OneToOne(cascade=CascadeType.PERSIST)
 	@JoinColumn(name="adresse_id")
 	private Adresse adresse;
 	@OneToMany(mappedBy="client")

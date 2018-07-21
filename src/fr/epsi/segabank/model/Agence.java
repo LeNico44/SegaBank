@@ -29,7 +29,7 @@ public class Agence implements Serializable {
 	private List<Compte> comptes;
 	@OneToMany(mappedBy="agence")
 	private List<Client> clients;
-	@ManyToOne
+	@OneToOne(cascade=CascadeType.PERSIST)
 	@JoinColumn(name="adresse_id")
 	private Adresse adresse;
 	
