@@ -21,7 +21,7 @@ public class CompteEpargne extends Compte {
 	}
 	
 	public CompteEpargne(String label, double solde, Client client, Agence agence, double taux) {
-		super(label, taux, client, agence);
+		super(label, solde, client, agence);
 		this.taux = taux;
 	}
 	

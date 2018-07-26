@@ -14,6 +14,7 @@ import javax.persistence.Query;
 
 import fr.epsi.segabank.dao.AgenceDAO;
 import fr.epsi.segabank.dao.ClientDAO;
+import fr.epsi.segabank.dao.CompteDAO;
 import fr.epsi.segabank.model.Adresse;
 import fr.epsi.segabank.model.Agence;
 import fr.epsi.segabank.model.Client;
@@ -50,27 +51,31 @@ public class Main {
             System.out.println( "*****************************************" );
             System.out.println( "**************Menu Agence****************" );
             System.out.println( "                                         " );
-            System.out.println( "* 1 - Ajouter une agence                *" );
-            System.out.println( "* 2 - Modifier une agence               *" );
-            System.out.println( "* 3 - Supprimer une agence              *" );
-            System.out.println( "* 4 - Lister les agences                *" );
+            System.out.println( "*  1 - Ajouter une agence               *" );
+            System.out.println( "*  2 - Modifier une agence              *" );
+            System.out.println( "*  3 - Supprimer une agence             *" );
+            System.out.println( "*  4 - Lister les agences               *" );
             System.out.println( "                                         " );
             System.out.println( "**************Menu Client****************" );
             System.out.println( "                                         " );
-            System.out.println( "* 5 - Ajouter un client                 *" );
-            System.out.println( "* 6 - Modifier un client                *" );
-            System.out.println( "* 7 - Supprimer un client               *" );
-            System.out.println( "* 8 - Lister les clients                *" );
+            System.out.println( "*  5 - Ajouter un client                *" );
+            System.out.println( "*  6 - Modifier un client               *" );
+            System.out.println( "*  7 - Supprimer un client              *" );
+            System.out.println( "*  8 - Lister les clients               *" );
             System.out.println( "                                         " );
             System.out.println( "**************Menu Compte****************" );
             System.out.println( "                                         " );
-            System.out.println( "* 9 - Ajouter un compte                 *" );
-            System.out.println( "* 10 - Créer une transaction            *" );
+            System.out.println( "*  9 - Ajouter un compte                *" );
+            System.out.println( "* 10 - Modifier un compte               *" );
             System.out.println( "* 11 - Supprimer un compte              *" );
             System.out.println( "* 12 - Lister les comptes               *" );
             System.out.println( "                                         " );
+            System.out.println( "***********Menu Transaction**************" );
+            System.out.println( "                                         " );
+            System.out.println( "* 13 - Créer une transaction            *" );
+            System.out.println( "                                         " );
             System.out.println( "*****************************************" );
-            System.out.println( "* 13 - Quitter                          *" );
+            System.out.println( "* 14 - Quitter                          *" );
             System.out.println( "*****************************************" );
             System.out.println( "*****************************************" );
             System.out.print( "        * Entrez votre choix : " );
@@ -106,13 +111,16 @@ public class Main {
             	addCompte(); 
             	break;
             case 10:
-            	addTransaction();
+            	editCompte();
             	break;
             case 11:
             	deleteCompte();
             	break;
             case 12:
             	dspComptes();
+            	break;
+            case 13:
+            	addTransaction();
             	break;
 
         }
@@ -604,11 +612,11 @@ public class Main {
             dspMainMenu();
         }
         
-        addCompteAgence(lAgence, leClient);
+        addCompteClient(lAgence, leClient);
 	}
 	
 	
-	public static void addCompteAgence(Agence agence, Client client) {
+	public static void addCompteClient(Agence agence, Client client) {
 		System.out.println( "************************************************" );
         System.out.println( "****************Ajout d'un compte***************" );
 		
@@ -648,12 +656,15 @@ public class Main {
 		System.out.println("Entrez le découvert autorisé : ");
 		double overdraft = scanner2.nextDouble();
 		
-		CompteSimple compte = new CompteSimple(label, solde, client, agence, overdraft);
- 
-		em.getTransaction().begin();
-		em.persist(compte);
-		em.getTransaction().commit();
+		Compte compte = new CompteSimple(label, solde, client, agence, overdraft);
 		
+		CompteDAO compteDAO = new CompteDAO();
+ 
+		try {
+			compteDAO.create( compte );
+        } catch ( java.sql.SQLException e ) {
+            System.out.println( e.getMessage() );
+        }
 		
 		
 		System.out.println("");
@@ -665,20 +676,24 @@ public class Main {
 	
 	private static void createCompteEpargne(Agence agence, Client client) {
 		
+		System.out.println("Entrez le taux du compte : ");
+		double taux = scanner2.nextDouble();
+		
 		System.out.println("Entrez un nom de compte : ");
 		String label = scanner.nextLine();
 		
 		System.out.println("Entrez le solde de départ : ");
 		double solde = scanner2.nextDouble();
 		
-		System.out.println("Entrez le taux du compte : ");
-		double taux = scanner.nextDouble();
-		
 		CompteEpargne compte = new CompteEpargne(label, solde, client, agence, taux);
 
-		em.getTransaction().begin();
-		em.persist(compte);
-		em.getTransaction().commit();
+		CompteDAO compteDAO = new CompteDAO();
+		 
+		try {
+			compteDAO.create( compte );
+        } catch ( java.sql.SQLException e ) {
+            System.out.println( e.getMessage() );
+        }
 		
 		
 		System.out.println("");
@@ -697,14 +712,62 @@ public class Main {
 		
 		ComptePayant compte = new ComptePayant(label, solde, client, agence);
 
-		em.getTransaction().begin();
-		em.persist(compte);
-		em.getTransaction().commit();
+		CompteDAO compteDAO = new CompteDAO();
+		 
+		try {
+			compteDAO.create( compte );
+        } catch ( java.sql.SQLException e ) {
+            System.out.println( e.getMessage() );
+        }
 		
 		
 		System.out.println("");
 		System.out.println("**********************");
 		System.out.println("Le compte à été créé !");
+        dspMainMenu();
+	}
+	
+	private static void editCompte() {
+		Query query1 = em.createQuery("FROM Compte");
+		List<Compte> comptes = query1.getResultList();
+				
+  	 	System.out.println( "***********************************************" );
+        System.out.println( "************Modification d'un compte************" );
+        if ( comptes.size() > 0 ) {
+        	System.out.println( "Sélectionnez le compte à modifier..." );
+        	System.out.println( "**************************************************************" );
+        	System.out.println( "index    |id             | nom           " );
+        	System.out.println( "**************************************************************" );
+        	int index = 0;
+           
+        	for ( Compte compte  : comptes ) {
+    			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
+        	}
+        	int response;
+        	String rep;
+        	do {
+        		System.out.print( "Entrez Le n° Index à modifier (-1 pour annuler) : " );
+        		response = scanner2.nextInt();
+        	} while ( response < -1 || response >= comptes.size() );
+        	
+        	CompteDAO compteDAO = new CompteDAO();
+        	
+        	System.out.println( "Etes vous sûr de vouloir modifier  (" + comptes.get(response).getLabel() + ") ?(o/n)" );                     
+			rep = scanner.nextLine();
+			if (rep.equals("o")) {
+				
+				System.out.println("Modifiez le nom du compte (" +  comptes.get(response).getLabel() + ") ou copier le nom actuel et valider avec la touche enter");
+				comptes.get(response).setLabel(scanner.nextLine());
+      
+	          	try {
+	          		compteDAO.update( comptes.get(response) );
+	       		} catch ( java.sql.SQLException e ) {
+	       			System.out.println( e.getMessage() );
+	       		}
+			} else {
+        		System.out.println( "Aucun élément trouvé !!!" );
+        	}
+        }
         dspMainMenu();
 	}
 	
@@ -721,11 +784,8 @@ public class Main {
         	System.out.println( "**************************************************************" );
         	int index = 0;
            
-        	List<String> types = new ArrayList();
-           
         	for ( Compte compte  : comptes ) {
     			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
-    			types.add(compte.getType());
         	}
         	int response;
         	String rep;
@@ -734,47 +794,18 @@ public class Main {
         		response = scanner2.nextInt();
         	} while ( response < -1 || response >= comptes.size() );
         	
-        	if ( -1 != response ) {
-        		if (types.get(response) == "simple") {
-        			CompteSimple compteSimple = new CompteSimple();
-        			compteSimple = (CompteSimple) comptes.get(response);
-     
-        			System.out.println( "Etes vous sûr de vouloir crediter  (" + compteSimple.getLabel() + ") ?(o/n)" );                     
-        			rep = scanner.nextLine();
-        			if (rep.equals("o")) {
-	 	              	System.out.println("delete "  );
-	 	              	em.getTransaction().begin();
-	 	              	em.remove(compteSimple);
-	 	              	em.getTransaction().commit();
-        			}
-                 
-        		}else if (types.get(response) == "payant") {
-		        	 ComptePayant comptePayant = new ComptePayant();
-		        	 comptePayant = (ComptePayant) comptes.get(response);
-		        	 
-		        	 System.out.println( "Etes vous sûr de vouloir crediter  (" + comptePayant.getLabel() + ") ?(o/n)" );                     
-		             rep = scanner.nextLine();
-		             if (rep.equals("o")) {
-		              	System.out.println("delete "  );
-		              	em.getTransaction().begin();
-		              	em.remove(comptePayant);
-		              	em.getTransaction().commit();
-		             }
-            	 
-        		}else {
-	            	 CompteEpargne compteEpargne = new CompteEpargne();
-	            	 compteEpargne = (CompteEpargne) comptes.get(response);
-	            	 
-	            	 System.out.println( "Etes vous sûr de vouloir crediter  (" + compteEpargne.getLabel() + ") ?(o/n)" );                     
-	            	 rep = scanner.nextLine();
-	            	 if (rep.equals("o")) {
-	                     	System.out.println("delete "  );
-	                     	em.getTransaction().begin();
-	                     	em.remove(compteEpargne);
-	                     	em.getTransaction().commit();
-	            	 }
-        		}
-        	} else {
+        	CompteDAO compteDAO = new CompteDAO();
+        	
+        	System.out.println( "Etes vous sûr de vouloir supprimer  (" + comptes.get(response).getLabel() + ") ?(o/n)" );                     
+			rep = scanner.nextLine();
+			if (rep.equals("o")) {
+          	System.out.println("delete "  );
+	          	try {
+	          		compteDAO.delete( comptes.get(response) );
+	       		} catch ( java.sql.SQLException e ) {
+	       			System.out.println( e.getMessage() );
+	       		}
+			} else {
         		System.out.println( "Aucun élément trouvé !!!" );
         	}
         }

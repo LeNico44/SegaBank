@@ -27,11 +27,11 @@ public abstract class Compte {
 	@OneToMany(mappedBy="compte")
 	private List<Transaction> transaction;
 	
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.MERGE)
 	@JoinColumn(name= "client_id")
 	private Client client;
 	
-	@ManyToOne(cascade=CascadeType.ALL)
+	@ManyToOne(cascade=CascadeType.MERGE)
 	@JoinColumn(name="agence_id")
 	private Agence agence;
 	

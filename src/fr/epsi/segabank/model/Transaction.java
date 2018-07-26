@@ -27,11 +27,11 @@ public class Transaction {
 	private String label;
 	private String type;
 	
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.MERGE)
 	@JoinColumn(name = "id_compte")
 	private Compte compte;
 	
-	@ManyToOne
+	@ManyToOne(cascade=CascadeType.MERGE)
 	@JoinColumn(name= "client_id")
 	private Client client;
 	

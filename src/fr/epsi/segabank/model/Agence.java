@@ -25,7 +25,7 @@ public class Agence implements Serializable {
 	private int id;
 	private int codeAgence;
 	private String label;
-	@OneToMany(mappedBy="agence",cascade=CascadeType.ALL,fetch=FetchType.EAGER)
+	@OneToMany(mappedBy="agence")
 	private List<Compte> comptes;
 	@OneToMany(mappedBy="agence")
 	private List<Client> clients;

@@ -4,7 +4,6 @@
 package fr.epsi.segabank.dao;
 
 import java.sql.SQLException;
-import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -41,9 +40,9 @@ public class AgenceDAO implements IDAO<Agence> {
 	@Override
 	public void delete(Agence o) throws SQLException {
 		em.getTransaction().begin();
-		Query query1 = em.createQuery("DELETE FROM agence WHERE agence_id = " + o.getId());
-		query1.executeUpdate();
-//		em.remove(0);
+//		Query query1 = em.createQuery("DELETE FROM Agence WHERE agence_id = " + o.getId());
+//		query1.executeUpdate();
+		em.remove(em.contains(o) ? o : em.merge(o));
 		em.getTransaction().commit();
 		
 	}
