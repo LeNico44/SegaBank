@@ -2,7 +2,6 @@ package fr.epsi.segabank.model;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.;
 
 /**
  * @author lolo

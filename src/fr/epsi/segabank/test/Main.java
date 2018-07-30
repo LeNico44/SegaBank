@@ -4,6 +4,7 @@
 package fr.epsi.segabank.test;
 
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -34,7 +35,6 @@ public class Main {
 	private static Scanner scanner2 = new Scanner( System.in );
 	private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("SegaBank");
 	private static EntityManager em = emf.createEntityManager();
-
 	/**
 	 * 
 	 */
@@ -44,9 +44,11 @@ public class Main {
 		dspMainMenu();
 
 	}
-	
+
+
+
 	public static void dspMainMenu() {
-        int response;
+        int response = 0;
         do {
             System.out.println( "*****************************************" );
             System.out.println( "**************Menu Agence****************" );
@@ -79,9 +81,15 @@ public class Main {
             System.out.println( "*****************************************" );
             System.out.println( "*****************************************" );
             System.out.print( "        * Entrez votre choix : " );
-            response = scanner.nextInt();
+            
+            try {
+            	response = Integer.parseInt(scanner.nextLine());
+    		} catch (NumberFormatException e) {
+    			System.out.println("Vous tentez de rentrer autre chose qu'un nombre correspondant aux choix du menu.");
+    			System.out.println("Veuillez réessayer");
+    		}
+            
         } while ( 0 >= response || response > 13 );
-        scanner.nextLine();
         switch ( response ) {
             case 1:
                 addAgence();
@@ -121,6 +129,9 @@ public class Main {
             	break;
             case 13:
             	addTransaction();
+            	break;
+            case 14:
+            	//méthode pour quitter l'application
             	break;
 
         }
@@ -1084,7 +1095,7 @@ public class Main {
 	 	              	if (validation.equals("o")) {
 	 	              		Transaction transaction = new Transaction(value, label, compteEpargne, type, compteEpargne.getClient());
 	 	              		compteEpargne.setSolde(compteEpargne.operation(value, type));
-	 	              		
+ 	 	              		
 	 	              		em.getTransaction().begin();
 	 	              		em.merge(compteEpargne);
 	 	              		em.persist(transaction);
