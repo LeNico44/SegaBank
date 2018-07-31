@@ -17,8 +17,6 @@ import fr.epsi.segabank.model.Agence;
 public class AgenceDAO implements IDAO<Agence> {
 	private static EntityManager em = JPAConnectionManager.getEm();
 	
-	//private static final String REQUETE_1 = "SELECT * FROM book";
-	
 
 	@Override
 	public void create(Agence o) throws SQLException {

@@ -4,7 +4,6 @@
 package fr.epsi.segabank.test;
 
 import java.util.ArrayList;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -71,13 +70,14 @@ public class Main {
             System.out.println( "* 10 - Modifier un compte               *" );
             System.out.println( "* 11 - Supprimer un compte              *" );
             System.out.println( "* 12 - Lister les comptes               *" );
+            System.out.println( "* 13 - Détails d'un compte              *" );
             System.out.println( "                                         " );
             System.out.println( "***********Menu Transaction**************" );
             System.out.println( "                                         " );
-            System.out.println( "* 13 - Créer une transaction            *" );
+            System.out.println( "* 14 - Créer une transaction            *" );
             System.out.println( "                                         " );
             System.out.println( "*****************************************" );
-            System.out.println( "* 14 - Quitter                          *" );
+            System.out.println( "* 15 - Quitter                          *" );
             System.out.println( "*****************************************" );
             System.out.println( "*****************************************" );
             System.out.print( "        * Entrez votre choix : " );
@@ -89,7 +89,7 @@ public class Main {
     			System.out.println("Veuillez réessayer");
     		}
             
-        } while ( 0 >= response || response > 13 );
+        } while ( 0 >= response || response > 14 );
         switch ( response ) {
             case 1:
                 addAgence();
@@ -128,15 +128,18 @@ public class Main {
             	dspComptes();
             	break;
             case 13:
-            	addTransaction();
+            	detailCompte();
             	break;
             case 14:
+            	addTransaction();
+            	break;
+            case 15:
             	//méthode pour quitter l'application
             	break;
 
         }
     }
-	
+
 	//AGENCE
 	public static void addAgence() {
 		
@@ -183,7 +186,7 @@ public class Main {
 		
 		System.out.println("");
 		System.out.println("**********************");
-		System.out.println("L'agence à été créée !");
+		System.out.println("L'agence a été créée !");
         dspMainMenu();
     }
 	
@@ -399,7 +402,7 @@ public class Main {
 		
 		System.out.println("");
 		System.out.println("**********************");
-		System.out.println("L'agence à été créée !");
+		System.out.println("Le client a été créée !");
         dspMainMenu();
     }
 	
@@ -483,10 +486,14 @@ public class Main {
                     } else {
                         System.out.println( "Aucun élément trouvé !!!" );
                     }
-                    
-                    em.getTransaction().begin();
-            		em.merge(leClient);
-            		em.getTransaction().commit();
+                
+	                ClientDAO clientDao = new ClientDAO();
+	                try {
+	                	clientDao.update( leClient );
+	                } catch ( java.sql.SQLException e ) {
+	                    System.out.println( e.getMessage() );
+	                }
+
                 }
             
         } else {
@@ -526,10 +533,14 @@ public class Main {
                 
                 
                 if (rep.equals("o")) {
-                System.out.println("delete " + leClient.getNom() + " " + leClient.getPrenom());
-                        em.getTransaction().begin();
-                		em.remove(leClient);
-                		em.getTransaction().commit();
+                	
+                	ClientDAO clientDao = new ClientDAO();
+                	
+	                try {
+	                	clientDao.delete( leClient );
+	                } catch ( java.sql.SQLException e ) {
+	                    System.out.println( e.getMessage() );
+	                }
                 }
             }
         } else {
@@ -847,11 +858,48 @@ public class Main {
         dspMainMenu();
 	}
 	
+	private static void detailCompte() {
+		Query query1 = em.createQuery("FROM Compte");
+		List<Compte> comptes = query1.getResultList();
+				
+  	 	System.out.println( "***********************************************" );
+        System.out.println( "***************Choix d'un compte***************" );
+        if ( comptes.size() > 0 ) {
+        	System.out.println( "Sélectionnez le compte à détailler..." );
+        	System.out.println( "**************************************************************" );
+        	System.out.println( "index    |id             | nom           " );
+        	System.out.println( "**************************************************************" );
+        	int index = 0;
+           
+        	for ( Compte compte  : comptes ) {
+    			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() );
+        	}
+        	int response;
+        	do {
+        		System.out.print( "Entrez Le n° Index (-1 pour annuler) : " );
+        		response = scanner2.nextInt();
+        	} while ( response < -1 || response >= comptes.size() );
+        	
+        	index = 0;
+        	
+        	Query query2 = em.createQuery("FROM Transaction WHERE id_compte = " + comptes.get(response).getId_compte());
+        	List<Transaction> transactions = query2.getResultList();
+        	
+        	for ( Transaction transaction  : transactions ) {
+    			System.out.println( index++ + "        | " + transaction.getDate() + "            | " + transaction.getLabel() + "            | " + transaction.getValue() );
+        	}
+        	
+        }else {
+        	System.out.println( "Aucun élément trouvé !!!" );
+        }
+        dspMainMenu();	
+	}
+	
 	//TRANSACTION
 	
 	public static void addTransaction() {
         
-		int response;
+		int response = 0;
         do {
        
 	       System.out.println( "************************************************" );
@@ -864,10 +912,14 @@ public class Main {
 	       System.out.println( "* 1 - Crediter un compte               *" );
 	       System.out.println( "* 2 - Debiter  un compte               *" );
 	       System.out.print  ( "        * Entrez votre choix : "      );
-	       response = scanner.nextInt();
+	       try {
+           	response = Integer.parseInt(scanner.nextLine());
+	   		} catch (NumberFormatException e) {
+	   			System.out.println("Vous tentez de rentrer autre chose qu'un nombre correspondant aux choix du menu.");
+	   			System.out.println("Veuillez réessayer");
+	   		}
   
-        } while ( 0 >= response || response > 13 );    
-        scanner.nextLine();  
+        } while ( 0 >= response || response > 2 );     
         switch ( response ) {        
 	        case 1:
 	        	creditCompte();
@@ -898,11 +950,16 @@ public class Main {
    			System.out.println( index++ + "        | " + compte.getId_compte() + "            | " + compte.getLabel() + "            | " + compte.getType() + "            | " + compte.getSolde() );
    			types.add(compte.getType());
        	}
-       	int response;
+       	int response = 0;
        	String rep;
        	do {
        		System.out.print( "Entrez Le n° Index du compte à créditer (-1 pour annuler) : " );
-       		response = scanner2.nextInt();
+       		try {
+               	response = Integer.parseInt(scanner2.nextLine());
+	   		} catch (NumberFormatException e) {
+	   			System.out.println("Vous tentez de rentrer autre chose qu'un nombre correspondant aux choix du menu.");
+	   			System.out.println("Veuillez réessayer");
+	   		}
        	} while ( response < -1 || response >= comptes.size() );
        	
        	if ( -1 != response ) {
@@ -916,7 +973,8 @@ public class Main {
        			if (rep.equals("o")) {
 	 	              	System.out.println("le compte à créditer : " + compteSimple.getLabel()  );
 	 	              	System.out.println("Indiquez le montant à créditer : ");
-	 	              	Double value = scanner2.nextDouble();
+	 	              	Double value = Double.parseDouble(scanner2.nextLine());//permet d'utiliser le point en guise de virgule
+	 	              	
 	 	              	System.out.println("Indiquez un label pour le crédit : ");
 	 	              	String label = scanner.nextLine();
 	 	              	System.out.println("Etes vous sûr de vouloir créditer de " + value + "€ le compte n° " + compteSimple.getId_compte() + " ?(o/n)");
